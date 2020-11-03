@@ -17,7 +17,7 @@ server.get("/", (req, res) => {
     res.status(200).json({message: "Server is up and running."});
 });
 
-server.use("/api/auth", authRouter);
+server.use("/mvp/auth", authRouter);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
