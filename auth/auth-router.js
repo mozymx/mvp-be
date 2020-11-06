@@ -1,52 +1,69 @@
 const router = require("express").Router();
 const bcryptjs = require("bcryptjs");
 
-const Users = require("./auth-model");
+const Customer = require("./auth-model");
+const Benefit = require("../benefits/benefits-model");
 
 const createToken = require("../helpers/createToken");
-const { validateUser } = require("./authenticate-middleware");
+const validateNewCustomer = require("../middleware/validateNewCustomer");
+const validateExistingCustomer = require("../middleware/validateExistingCustomer");
 
-// register a new user
-router.post("/register", validateUser, (req, res) => {
-    const user = req.body;
+// register new customer
+router.post("/register", validateNewCustomer, (req, res) => {
+    const customer = req.body;
 
     // hash the password
     const rounds = 8;
-    const hash = bcryptjs.hashSync(user.password, rounds);
+    const hash = bcryptjs.hashSync(customer.password, rounds);
 
-    user.password = hash;
+    customer.password = hash;
 
-    // save the user to the database
-    Users.addUser(user)
-    .then((user) => {
-        res.status(201).json({ user });
+    // save customer to database
+    Customer.addCustomer(customer)
+    .then((customer) => {
+        const token = createToken(customer);
+        const customerID = customer[0]
+
+        // create default benefits for customer
+        Benefit.addBenefit(customerID)
+        .then((benefit) => {
+            res.status(201).json({
+                message: "Register successful.",
+                customerID,
+                token
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({ error: `There was an error adding default benefits for customerID ${customerID}. Try again.`})
+        })
     })
     .catch((error) => {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: `There was an error creating a user for ${customer.name}. Try again.` });
     });
 });
 
-// login existing user
-router.post("/login", validateUser, (req, res) => {
-    const user = req.body;
+// login existing customer
+router.post("/login", validateExistingCustomer, (req, res) => {
+    const customer = req.body;
 
-    Users.findUserBy({ email: user.email })
-    .then((users) => {
-        const foundUser = users[0];
+    Customer.findCustomerByFilter({ email: customer.email })
+    .then((customers) => {
+        const foundCustomer = customers[0];
 
-        if (user && bcryptjs.compareSync(user.password, foundUser.password)) {
-            const token = createToken(foundUser);
+        if (customer && bcryptjs.compareSync(customer.password, foundCustomer.password)) {
+            const token = createToken(foundCustomer);
 
             res.status(200).json({
-                message: "Welcome to our API. Here's your token...",
+                message: "Login successful.",
+                customerID: foundCustomer.customer_id,
                 token,
             });
         } else {
-            res.status(401).json({ message: "Sorry, you're not authorized to use our API."});
+            res.status(401).json({ message: "Sorry, your token is invalid."});
         }
     })
     .catch((error) => {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Sorry, wrong email or password. Try again." });
     });
 });
 
