@@ -1,22 +1,22 @@
 const db = require("../database/dbConfig");
 
 module.exports = {
-    addUser,
-    findUserBy,
+    addCustomer,
+    findCustomerByID,
+    findCustomerByFilter,
 }
 
-// add a user and return it
-async function addUser(user) {
-    const [id] = await db("users").insert(user, "id");
-    return findUserById(id);
+// add customer and return it
+function addCustomer(customer) {
+    return db("customer").insert(customer).returning("customer_id");
 }
 
-// find user by id
-function findUserById(id) {
-    return db("users").where({ id }).first();
+// find customer by id
+function findCustomerByID(customerID) {
+    return db("customer").where({ customer_id: customerID }).first();
 }
 
-// find user by other criteria
-function findUserBy(filter) {
-    return db("users").where(filter).orderBy("id");
+// find customer by other criteria
+function findCustomerByFilter(filter) {
+    return db("customer").where(filter).orderBy("customer_id");
 }

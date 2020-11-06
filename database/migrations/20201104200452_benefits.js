@@ -1,14 +1,14 @@
 exports.up = function(knex) {
-    return knex.schema.createTable("benefits", (benefits) => {
-        benefits.increments("id");
-        benefits.integer("savings").defaultTo(5);
-        benefits.integer("investment").defaultTo(10);
-        benefits.integer("taxes").defaultTo(35);
-        benefits.boolean("insurance").defaultTo(false);
-        benefits.integer("userID").unsigned().notNullable().references("users.id");
+    return knex.schema.createTable("benefit", (benefit) => {
+        benefit.increments("benefit_id");
+        benefit.integer("savings").defaultTo(5);
+        benefit.integer("investment").defaultTo(10);
+        benefit.integer("taxes").defaultTo(35);
+        benefit.boolean("insurance").defaultTo(false);
+        benefit.integer("customer_id").unsigned().notNullable().references("customer.customer_id");
     })
 };
 
 exports.down = function(knex) {
-    return knex.schema.dropTableIfExists("benefits");
+    return knex.schema.dropTableIfExists("benefit");
 };
