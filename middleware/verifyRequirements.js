@@ -1,4 +1,4 @@
-const validateNewCustomer = (req, res, next) => {
+const verifyRequirements = (req, res, next) => {
     if (!req.body.name) {
         res.status(400).json({ message: "What's your name?" });
     } else if (!req.body.email) {
@@ -12,4 +12,4 @@ const validateNewCustomer = (req, res, next) => {
     }
 }
 
-module.exports = validateNewCustomer;
+module.exports = verifyRequirements;

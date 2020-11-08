@@ -4,12 +4,13 @@ const bcryptjs = require("bcryptjs");
 const Customer = require("./auth-model");
 const Benefit = require("../benefits/benefits-model");
 
+const verifyRequirements = require("../middleware/verifyRequirements");
+const validateCustomer = require("../middleware/validateCustomer");
 const createToken = require("../helpers/createToken");
-const validateNewCustomer = require("../middleware/validateNewCustomer");
-const validateExistingCustomer = require("../middleware/validateExistingCustomer");
+const errorMessages = require("../helpers/errorMessages");
 
 // register new customer
-router.post("/register", validateNewCustomer, (req, res) => {
+router.post("/register", verifyRequirements, (req, res) => {
     const customer = req.body;
 
     // hash the password
@@ -25,7 +26,7 @@ router.post("/register", validateNewCustomer, (req, res) => {
         const customerID = customer[0]
 
         // create default benefits for customer
-        Benefit.addBenefit(customerID)
+        Benefit.addBenefits(customerID)
         .then((benefit) => {
             res.status(201).json({
                 message: "Register successful.",
@@ -38,33 +39,30 @@ router.post("/register", validateNewCustomer, (req, res) => {
         })
     })
     .catch((error) => {
-        res.status(500).json({ error: `There was an error creating a user for ${customer.name}. Try again.` });
+        const errorMessage = errorMessages(error);
+        if (errorMessage) {
+            res.status(409).json({ error: errorMessage })
+        } else {
+            res.status(500).json({ error: `Hubo un error registrando a ${customer.name}. Por favor intenta de nuevo.` });
+        }
     });
 });
 
 // login existing customer
-router.post("/login", validateExistingCustomer, (req, res) => {
+router.post("/login", validateCustomer, (req, res) => {
     const customer = req.body;
+    const existingCustomer = req.foundCustomer;
 
-    Customer.findCustomerByFilter({ email: customer.email })
-    .then((customers) => {
-        const foundCustomer = customers[0];
-
-        if (customer && bcryptjs.compareSync(customer.password, foundCustomer.password)) {
-            const token = createToken(foundCustomer);
-
-            res.status(200).json({
-                message: "Login successful.",
-                customerID: foundCustomer.customer_id,
-                token,
-            });
-        } else {
-            res.status(401).json({ message: "Sorry, your token is invalid."});
-        }
-    })
-    .catch((error) => {
-        res.status(500).json({ error: "Sorry, wrong email or password. Try again." });
-    });
+    if (bcryptjs.compareSync(customer.password, existingCustomer.password)) {
+        const token = createToken(existingCustomer);
+        res.status(200).json({
+            message: "Login successful.",
+            customerID: existingCustomer.customer_id,
+            token
+        });
+    } else {
+        res.status(401).json({ error: "Oops, contraseña equivocada. Por favor intenta de nuevo. :)"})
+    }
 });
 
 module.exports = router;
