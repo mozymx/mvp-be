@@ -4,9 +4,10 @@ const bcryptjs = require("bcryptjs");
 const Customer = require("./auth-model");
 const Benefit = require("../benefits/benefits-model");
 
-const createToken = require("../helpers/createToken");
 const validateNewCustomer = require("../middleware/validateNewCustomer");
 const validateExistingCustomer = require("../middleware/validateExistingCustomer");
+const createToken = require("../helpers/createToken");
+const errorMessages = require("../helpers/errorMessages");
 
 // register new customer
 router.post("/register", validateNewCustomer, (req, res) => {
@@ -25,7 +26,7 @@ router.post("/register", validateNewCustomer, (req, res) => {
         const customerID = customer[0]
 
         // create default benefits for customer
-        Benefit.addBenefit(customerID)
+        Benefit.addBenefits(customerID)
         .then((benefit) => {
             res.status(201).json({
                 message: "Register successful.",
@@ -38,7 +39,13 @@ router.post("/register", validateNewCustomer, (req, res) => {
         })
     })
     .catch((error) => {
-        res.status(500).json({ error: `There was an error creating a user for ${customer.name}. Try again.` });
+        const errorMessage = errorMessages(error);
+        if (errorMessage) {
+            res.status(500).json({ error: errorMessage })
+        } else {
+            res.status(500).json({ error: `There was an
+            error creating a user for ${customer.name}. Try again.` });
+        }
     });
 });
 
@@ -63,7 +70,7 @@ router.post("/login", validateExistingCustomer, (req, res) => {
         }
     })
     .catch((error) => {
-        res.status(500).json({ error: "Sorry, wrong email or password. Try again." });
+        res.status(500).json({ error: "Oops, correo o contraseña equivocada. Por favor intenta otra vez. :)" });
     });
 });
 
