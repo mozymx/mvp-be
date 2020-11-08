@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 
-const authenticate = require("./middleware/authenticate");
+const authenticateToken = require("./middleware/authenticateToken");
 const authRouter = require("./auth/auth-router.js");
 const benefitsRouter = require("./benefits/benefits-router.js");
 
@@ -19,7 +19,7 @@ server.get("/", (req, res) => {
 });
 
 server.use("/mvp/auth", authRouter);
-server.use("/mvp/benefits", authenticate, benefitsRouter);
+server.use("/mvp/benefits", authenticateToken, benefitsRouter);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
