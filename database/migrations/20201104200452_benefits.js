@@ -6,6 +6,7 @@ exports.up = function(knex) {
         benefit.integer("taxes").defaultTo(35);
         benefit.boolean("insurance").defaultTo(false);
         benefit.integer("customer_id").unsigned().notNullable().references("customer.customer_id");
+        benefit.timestamps(false, true);
     })
 };
 
