@@ -5,7 +5,10 @@ exports.up = function(knex) {
         benefit.integer("investment").defaultTo(10);
         benefit.integer("taxes").defaultTo(35);
         benefit.boolean("insurance").defaultTo(false);
-        benefit.integer("customer_id").unsigned().notNullable().references("customer.id");
+        benefit.integer("customer_id")
+        .unsigned()
+        .notNullable()
+        .references("customer.id");
         benefit.timestamps(false, true);
     })
 };
