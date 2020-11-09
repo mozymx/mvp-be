@@ -8,7 +8,7 @@ module.exports = {
 
 // add benefit for a customer
 function addBenefits(customerID) {
-    return db("benefit").insert({ customer_id: customerID }).returning("benefit_id");
+    return db("benefit").insert({ customer_id: customerID }).returning("id");
 }
 
 // find benefits by customer id
