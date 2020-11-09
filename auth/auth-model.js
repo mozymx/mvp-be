@@ -8,15 +8,15 @@ module.exports = {
 
 // add customer and return it
 function addCustomer(customer) {
-    return db("customer").insert(customer).returning("customer_id");
+    return db("customer").insert(customer).returning("id");
 }
 
 // find customer by id
 function findCustomerByID(customerID) {
-    return db("customer").where({ customer_id: customerID }).first();
+    return db("customer").where({ id: customerID }).first();
 }
 
 // find customer by other criteria
 function findCustomerByFilter(filter) {
-    return db("customer").where(filter).orderBy("customer_id");
+    return db("customer").where(filter).orderBy("id");
 }
