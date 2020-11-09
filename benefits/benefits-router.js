@@ -1,13 +1,13 @@
 const router = require("express").Router();
 
-const Benefit = require("./benefits-model");
+const Benefits = require("./benefits-model");
 
 
 // get benefits by customer id
 router.get("/:customerID", (req, res) => {
     const customerID = req.params.customerID;
 
-    Benefit.findBenefitsByCustomer(customerID)
+    Benefits.findBenefitsByCustomer(customerID)
     .then((benefits) => {
         res.status(200).json({ customerBenefits: benefits })
     })
@@ -21,7 +21,7 @@ router.put("/:customerID", (req, res) => {
     const customerID = req.params.customerID;
     const benefitUpdates = req.body;
 
-    Benefit.updateBenefits(customerID, benefitUpdates)
+    Benefits.updateBenefits(customerID, benefitUpdates)
     .then((updateCount) => {
         res.status(204).end();
     })

@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const authenticateToken = require("./middleware/authenticateToken");
 const authRouter = require("./auth/auth-router.js");
 const benefitsRouter = require("./benefits/benefits-router.js");
-const bankRouter = require("./bank/bank-router.js");
+const banksRouter = require("./banks/banks-router.js");
 
 const server = express();
 
@@ -21,7 +21,7 @@ server.get("/", (req, res) => {
 
 server.use("/mvp/auth", authRouter);
 server.use("/mvp/benefits", authenticateToken, benefitsRouter);
-server.use("/mvp/bank", authenticateToken, bankRouter);
+server.use("/mvp/banks", authenticateToken, banksRouter);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

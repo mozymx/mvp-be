@@ -5,6 +5,6 @@ module.exports = {
 }
 
 // add bank for a customer
-function addBank(customerID) {
-    return db("bank").insert({ customer_id: customerID }).returning("id");
+function addBank(customerData) {
+    return db("bank").insert(customerData).returning("id");
 }
