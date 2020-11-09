@@ -57,7 +57,7 @@ router.post("/login", validateCustomer, (req, res) => {
         const token = createToken(existingCustomer);
         res.status(200).json({
             message: "Login successful.",
-            customerID: existingCustomer.customer_id,
+            customerID: existingCustomer.id,
             token
         });
     } else {
