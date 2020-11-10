@@ -23,6 +23,26 @@ router.get("/belvo-access-token", (req, res) => {
     });
 })
 
+// get all institutions from Belvo
+router.get("/belvo-institutions", (req, res) => {
+    client.connect()
+    .then(() => {
+        client.institutions.list()
+        .then((institutions) => {
+            const mexicoRetailBanks = institutions.filter((institution) => {
+                if (institution.type === "bank" && institution["country_code"] === "MX" && institution.name.includes("mx_retail")) {
+                    return institution
+                }
+            })
+            res.status(200).json(mexicoRetailBanks);
+        })
+        .catch((error) => {
+            console.log("ERROR:", error)
+            res.status(401).json({ error })
+        });
+    });
+})
+
 // get all bank account links
 router.get("/bank-accounts", (req, res) => {
     Banks.getAllBanks()
@@ -88,15 +108,6 @@ router.delete("/delete-account/:bankID", (req, res) => {
                 })
             })
         })
-    })
-})
-
-router.get("/:bankID", (req, res) => {
-    const bankID = req.params.bankID;
-
-    Banks.getBankByID(bankID)
-    .then((response) => {
-        console.log("RESPONSE:", response);
     })
 })
 
