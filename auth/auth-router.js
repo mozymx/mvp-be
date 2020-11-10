@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const bcryptjs = require("bcryptjs");
 
-const Customer = require("./auth-model");
-const Benefit = require("../benefits/benefits-model");
+const Customers = require("./auth-model");
+const Benefits = require("../benefits/benefits-model");
 
 const verifyRequirements = require("../middleware/verifyRequirements");
 const validateCustomer = require("../middleware/validateCustomer");
@@ -20,13 +20,13 @@ router.post("/register", verifyRequirements, (req, res) => {
     customer.password = hash;
 
     // save customer to database
-    Customer.addCustomer(customer)
+    Customers.addCustomer(customer)
     .then((customer) => {
         const token = createToken(customer);
         const customerID = customer[0]
 
         // create default benefits for customer
-        Benefit.addBenefits(customerID)
+        Benefits.addBenefits(customerID)
         .then((benefit) => {
             res.status(201).json({
                 message: "Register successful.",
