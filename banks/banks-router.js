@@ -20,7 +20,11 @@ router.get("/belvo-access-token", (req, res) => {
         .catch((error) => {
             res.status(500).json({ error });
         });
-    });
+    })
+    .catch((error) => {
+        res.status(500).json({ error });
+    })
+    ;
 })
 
 // get all institutions from Belvo
@@ -37,9 +41,11 @@ router.get("/belvo-institutions", (req, res) => {
             res.status(200).json(mexicoRetailBanks);
         })
         .catch((error) => {
-            console.log("ERROR:", error)
-            res.status(401).json({ error })
+            res.status(401).json({ error });
         });
+    })
+    .catch((error) => {
+        res.status(500).json({ error });
     });
 })
 
@@ -84,6 +90,36 @@ router.post("/register-account/:customerID", (req, res) => {
         .catch((error) => {
             res.status(500).json({ error });
         });
+    });
+})
+
+// get bank accounts from a specific link
+router.get("/something", (req, res) => {
+    client.connect()
+    .then(() => {
+        client.accounts.list()
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    })
+    .catch((error) => {
+        res.status(500).json({ error });
+    })
+})
+
+// create banke account for a specific link
+router.post("/something/:bankID", (req, res) => {
+    const bankID = req.params.bankID;
+
+    Banks.getBankByID(bankID)
+    .then((bankAccount) => {
+        console.log("Bank Account", bankAccount);
+    })
+    .catch((error) => {
+        console.log("Error:", error);
     });
 })
 
