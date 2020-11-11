@@ -6,7 +6,7 @@ const Banks = require("./banks-model");
 const client = new belvo(
     process.env.BELVO_ID,
     process.env.BELVO_PASSWORD,
-    process.env.BELVO_SANDBOX
+    process.env.BELVO_URL
 )
 
 // generate Belvo API access token
@@ -20,12 +20,8 @@ router.get("/belvo-access-token", (req, res) => {
         .catch((error) => {
             res.status(500).json({ error });
         });
-    })
-    .catch((error) => {
-        res.status(500).json({ error });
-    })
-    ;
-})
+    });
+});
 
 // get all institutions from Belvo
 router.get("/belvo-institutions", (req, res) => {
@@ -41,13 +37,11 @@ router.get("/belvo-institutions", (req, res) => {
             res.status(200).json(mexicoRetailBanks);
         })
         .catch((error) => {
+            console.log("ERROR", error);
             res.status(401).json({ error });
         });
-    })
-    .catch((error) => {
-        res.status(500).json({ error });
     });
-})
+});
 
 // get all bank account links
 router.get("/bank-accounts", (req, res) => {
@@ -56,9 +50,9 @@ router.get("/bank-accounts", (req, res) => {
         res.status(200).json({ bankAccounts });
     })
     .catch((error) => {
-        res.status(500).json({ error })
-    })
-})
+        res.status(500).json({ error });
+    });
+});
 
 // create link to bank account
 router.post("/register-account/:customerID", (req, res) => {
@@ -91,7 +85,7 @@ router.post("/register-account/:customerID", (req, res) => {
             res.status(500).json({ error });
         });
     });
-})
+});
 
 // get bank accounts from a specific link
 router.get("/something", (req, res) => {
@@ -104,11 +98,8 @@ router.get("/something", (req, res) => {
         .catch((error) => {
             console.log(error);
         });
-    })
-    .catch((error) => {
-        res.status(500).json({ error });
-    })
-})
+    });
+});
 
 // create banke account for a specific link
 router.post("/something/:bankID", (req, res) => {
@@ -121,7 +112,7 @@ router.post("/something/:bankID", (req, res) => {
     .catch((error) => {
         console.log("Error:", error);
     });
-})
+});
 
 // delete a specific bank account
 router.delete("/delete-account/:bankID", (req, res) => {
@@ -141,10 +132,10 @@ router.delete("/delete-account/:bankID", (req, res) => {
                 })
                 .catch((error) => {
                     res.status(500).json({ error });
-                })
-            })
-        })
-    })
-})
+                });
+            });
+        });
+    });
+});
 
 module.exports = router;
