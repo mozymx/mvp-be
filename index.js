@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const morgan = require("morgan");
 
 const authenticateToken = require("./middleware/authenticateToken");
 const authRouter = require("./auth/auth-router.js");
@@ -14,6 +15,7 @@ const server = express();
 server.use(cors());
 server.use(helmet());
 server.use(express.json());
+server.use(morgan('dev'));
 
 server.get("/", (req, res) => {
     res.status(200).json({message: "Server is up and running."});
