@@ -33,28 +33,16 @@ router.get("/available-banks", (req, res) => {
   });
 });
 
-// get all bank connections created through Belvo
-router.get("/bank-connection", (req, res) => {
-  client.connect().then(() => {
-    client.links
-      .list()
-      .then((belvoLinks) => {
-        res.status(200).json({ belvoLinks });
-      })
-      .catch((error) => {
-        res.status(500).json({ error });
-      });
-  });
-});
+/* BANK CONNECTIONS (Belvo Links) */
 
 // connect user to bank through Belvo
 router.post("/bank-connection/:customerID", (req, res) => {
   const customerID = req.params.customerID;
-  const { institution, username, password, token } = req.body;
+  const { institution, username, password, token, access_mode } = req.body;
 
   client.connect().then(() => {
     client.links
-      .register(institution, username, password)
+      .register(institution, username, password, { access_mode: access_mode })
       .then((belvoLink) => {
         const customerData = {
           name: belvoLink.institution,
@@ -101,21 +89,29 @@ router.post("/bank-connection/:customerID", (req, res) => {
   });
 });
 
-// delete a bank connection created through Belvo
-router.delete("/bank-connection/:linkID", (req, res) => {
-  const linkID = req.params.linkID;
+// delete a specific bank account
+router.delete("/bank-connection/:bankID", (req, res) => {
+  const bankID = req.params.bankID;
 
-  client.connect().then(() => {
-    client.links
-      .delete(linkID)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.log(error);
+  Banks.getBankByID(bankID).then((bankAccount) => {
+    // first delete from our database
+    Banks.deleteBank(bankAccount.id).then((response) => {
+      // then from Belvo API
+      client.connect().then(() => {
+        client.links
+          .delete(bankAccount.link)
+          .then((response) => {
+            res.status(204).end();
+          })
+          .catch((error) => {
+            res.status(500).json({ error });
+          });
       });
+    });
   });
 });
+
+/* BANK ACCOUNTS (Belvo Accounts) */
 
 // get user's accounts from bank
 router.post("/bank-accounts/:bankID", (req, res) => {
@@ -125,17 +121,17 @@ router.post("/bank-accounts/:bankID", (req, res) => {
     .then((bankAccount) => {
       client.connect().then(() => {
         client.accounts
-          .retrieve(bankAccount.account)
+          .retrieve(bankAccount.link)
           .then((registeredAccounts) => {
             res.status(201).json({ registeredAccounts });
           })
           .catch((error) => {
-            console.log(error);
+            res.status(500).json({ error });
           });
       });
     })
     .catch((error) => {
-      console.log("Error:", error);
+      res.status(500).json({ error });
     });
 });
 
@@ -157,25 +153,36 @@ router.post("/account-balance/:accountID", (req, res) => {
   });
 });
 
-// delete a specific bank account
-router.delete("/delete-account/:bankID", (req, res) => {
-  const bankID = req.params.bankID;
+/* HELPER ENDPOINTS THAT SKIP OUR DATABASE
+AND DEAL WITH BELVO DIRECTLY */
 
-  Banks.getBankByID(bankID).then((bankAccount) => {
-    // first delete from our database
-    Banks.deleteBank(bankAccount.id).then((response) => {
-      // then from Belvo API
-      client.connect().then(() => {
-        client.links
-          .delete(bankAccount.account)
-          .then((response) => {
-            res.status(204).end();
-          })
-          .catch((error) => {
-            res.status(500).json({ error });
-          });
+// get all bank connections created through Belvo
+router.get("/belvo-links", (req, res) => {
+  client.connect().then(() => {
+    client.links
+      .list()
+      .then((belvoLinks) => {
+        res.status(200).json({ belvoLinks });
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
       });
-    });
+  });
+});
+
+// delete a bank connection created through Belvo
+router.delete("/belvo-links/:linkID", (req, res) => {
+  const linkID = req.params.linkID;
+
+  client.connect().then(() => {
+    client.links
+      .delete(linkID)
+      .then((response) => {
+        res.status(204).end();
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
   });
 });
 
