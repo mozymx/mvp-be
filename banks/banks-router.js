@@ -2,6 +2,7 @@ const router = require("express").Router();
 const belvo = require("belvo").default;
 
 const Banks = require("./banks-model");
+const Accounts = require("./accounts-model");
 
 const client = new belvo(
   process.env.BELVO_ID,
@@ -40,6 +41,7 @@ router.post("/bank-connection/:customerID", (req, res) => {
   const customerID = req.params.customerID;
   const { institution, username, password, token, access_mode } = req.body;
 
+  // first create the link in Belvo
   client.connect().then(() => {
     client.links
       .register(institution, username, password, { access_mode: access_mode })
@@ -52,9 +54,11 @@ router.post("/bank-connection/:customerID", (req, res) => {
           customer_id: customerID,
         };
 
+        // second add it to our database
         Banks.addBank(customerData)
-          .then((response) => {
-            res.status(201).end();
+          .then((bankIDs) => {
+            const bankID = bankIDs[0];
+            res.status(201).json({ bankID });
           })
           .catch((error) => {
             res.status(500).json({ error });
@@ -74,8 +78,9 @@ router.post("/bank-connection/:customerID", (req, res) => {
               };
 
               Banks.addBank(customerData)
-                .then((response) => {
-                  res.status(201).end();
+                .then((bankIDs) => {
+                  const bankID = bankIDs[0];
+                  res.status(201).json({ bankID });
                 })
                 .catch((error) => {
                   res.status(500).json({ error });
@@ -89,7 +94,7 @@ router.post("/bank-connection/:customerID", (req, res) => {
   });
 });
 
-// delete a specific bank account
+// delete a specific bank connection
 router.delete("/bank-connection/:bankID", (req, res) => {
   const bankID = req.params.bankID;
 
@@ -135,22 +140,57 @@ router.post("/bank-accounts/:bankID", (req, res) => {
     });
 });
 
-// get balance from a specific user bank account
-router.post("/account-balance/:accountID", (req, res) => {
+// save user's bank account
+router.post("/save-bank-account/:bankID", (req, res) => {
+  const bankID = req.params.bankID;
+  const accountData = {
+    name: req.body.name,
+    number: req.body.id,
+    type: req.body.type,
+    category: req.body.category,
+    currency: req.body.currency,
+    bank_id: bankID,
+  };
+
+  Accounts.addAccount(accountData)
+    .then((accountIDs) => {
+      const accountID = accountIDs[0];
+      res.status(201).json({ accountID });
+    })
+    .catch((error) => {
+      res.statusÇ(500).json({ error });
+    });
+});
+
+// get details from specific user bank account
+router.get("/account-details/:accountID", (req, res) => {
   const accountID = req.params.accountID;
 
-  client.connect().then(() => {
-    client.balances
-      .retrieve("57324f8f-5488-46d2-9bd6-81ea300599b2", "2020-10-10", {
-        account: "4509b7b8-c7a1-4a04-ba2d-0a3eb2d97370",
-      })
-      .then((accountBalance) => {
-        res.status(201).json({ accountBalance });
+  Accounts.getAccountByID(accountID).then((account) => {
+    client
+      .connect()
+      .then(() => {
+        client.accounts
+          .detail(account.number)
+          .then((accountDetails) => {
+            res.status(200).json({ accountDetails });
+          })
+          .catch((error) => {
+            res.status(500).json({ error });
+          });
       })
       .catch((error) => {
         res.status(500).json({ error });
       });
   });
+});
+
+/* BANK TRANSACTIONS (Belvo Transactions) */
+router.post("/bank-transactions/:accountID", (req, res) => {
+  const accountID = req.params.accountID;
+
+  // TODO:
+  Accounts.getAccountsByID(accountID).then(account);
 });
 
 /* HELPER ENDPOINTS THAT SKIP OUR DATABASE
@@ -177,6 +217,36 @@ router.delete("/belvo-links/:linkID", (req, res) => {
   client.connect().then(() => {
     client.links
       .delete(linkID)
+      .then((response) => {
+        res.status(204).end();
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
+// get all bank accounts created through Belvo
+router.get("/belvo-accounts", (req, res) => {
+  client.connect().then(() => {
+    client.accounts
+      .list()
+      .then((belvoAccounts) => {
+        res.status(200).json({ belvoAccounts });
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
+// delete a bank connection created through Belvo
+router.delete("/belvo-accounts/:accountID", (req, res) => {
+  const accountID = req.params.accountID;
+
+  client.connect().then(() => {
+    client.accounts
+      .delete(accountID)
       .then((response) => {
         res.status(204).end();
       })
