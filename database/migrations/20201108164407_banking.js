@@ -2,6 +2,7 @@ exports.up = function (knex) {
   return knex.schema.createTable("bank", (bank) => {
     bank.increments("id");
     bank.string("name").notNullable();
+    bank.string("description").notNullable();
     bank.string("link").notNullable();
     bank.string("link_type").notNullable();
     bank.string("link_status").notNullable();

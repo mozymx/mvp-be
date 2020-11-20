@@ -39,15 +39,16 @@ router.get("/available-banks", (req, res) => {
 // connect user to bank through Belvo
 router.post("/bank-connection/:customerID", (req, res) => {
   const customerID = req.params.customerID;
-  const { institution, username, password, token, access_mode } = req.body;
+  const { display_name, name, username, password, token } = req.body;
 
   // first create the link in Belvo
   client.connect().then(() => {
     client.links
-      .register(institution, username, password, { access_mode: access_mode })
+      .register(name, username, password)
       .then((belvoLink) => {
         const customerData = {
-          name: belvoLink.institution,
+          name: display_name,
+          description: belvoLink.institution,
           link: belvoLink.id,
           link_type: belvoLink.access_mode,
           link_status: belvoLink.status,
@@ -70,7 +71,8 @@ router.post("/bank-connection/:customerID", (req, res) => {
           client.connect().then(() => {
             client.links.resume(session, token, link).then((belvoLink) => {
               const customerData = {
-                name: belvoLink.institution,
+                name: display_name,
+                description: belvoLink.institution,
                 link: belvoLink.id,
                 link_type: belvoLink.access_mode,
                 link_status: belvoLink.status,
@@ -98,13 +100,13 @@ router.post("/bank-connection/:customerID", (req, res) => {
 router.delete("/bank-connection/:bankID", (req, res) => {
   const bankID = req.params.bankID;
 
-  Banks.getBankByID(bankID).then((bankAccount) => {
+  Banks.getBankByID(bankID).then((bank) => {
     // first delete from our database
-    Banks.deleteBank(bankAccount.id).then((response) => {
+    Banks.deleteBank(bank.id).then((response) => {
       // then from Belvo API
       client.connect().then(() => {
         client.links
-          .delete(bankAccount.link)
+          .delete(bank.link)
           .then((response) => {
             res.status(204).end();
           })
@@ -123,10 +125,10 @@ router.post("/bank-accounts/:bankID", (req, res) => {
   const bankID = req.params.bankID;
 
   Banks.getBankByID(bankID)
-    .then((bankAccount) => {
+    .then((bank) => {
       client.connect().then(() => {
         client.accounts
-          .retrieve(bankAccount.link)
+          .retrieve(bank.link)
           .then((registeredAccounts) => {
             res.status(201).json({ registeredAccounts });
           })
@@ -158,31 +160,41 @@ router.post("/save-bank-account/:bankID", (req, res) => {
       res.status(201).json({ accountID });
     })
     .catch((error) => {
-      res.statusÇ(500).json({ error });
+      res.status(500).json({ error });
     });
 });
 
 // get details from specific user bank account
-router.get("/account-details/:accountID", (req, res) => {
+router.get("/account-details/:accountID/bank/:bankID", (req, res) => {
   const accountID = req.params.accountID;
+  const bankID = req.params.bankID;
 
-  Accounts.getAccountByID(accountID).then((account) => {
-    client
-      .connect()
-      .then(() => {
-        client.accounts
-          .detail(account.number)
-          .then((accountDetails) => {
-            res.status(200).json({ accountDetails });
+  Banks.getBankByID(bankID)
+    .then((bank) => {
+      Accounts.getAccountByID(accountID).then((account) => {
+        client
+          .connect()
+          .then(() => {
+            client.accounts
+              .detail(account.number)
+              .then((accountDetails) => {
+                // adds bank name to accountDetails
+                // before sending it back in response
+                accountDetails.bank_display_name = bank.name;
+                res.status(200).json({ accountDetails });
+              })
+              .catch((error) => {
+                res.status(500).json({ error });
+              });
           })
           .catch((error) => {
             res.status(500).json({ error });
           });
-      })
-      .catch((error) => {
-        res.status(500).json({ error });
       });
-  });
+    })
+    .catch((error) => {
+      res.status(500).json({ error });
+    });
 });
 
 /* BANK TRANSACTIONS (Belvo Transactions) */
