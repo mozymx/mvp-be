@@ -4,6 +4,7 @@ module.exports = {
   addBank,
   getAllBanks,
   getBankByID,
+  getBankByFilter,
   deleteBank,
 };
 
@@ -17,9 +18,14 @@ function getAllBanks() {
   return db("bank");
 }
 
-// get bank by filter
+// get bank by id
 function getBankByID(bankID) {
   return db("bank").where({ id: bankID }).first();
+}
+
+// get bank by filter
+function getBankByFilter(filter) {
+  return db("bank").where(filter).first();
 }
 
 // delete bank for a customer
