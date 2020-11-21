@@ -7,10 +7,11 @@ const morgan = require("morgan");
 
 const authenticateToken = require("./middleware/authenticateToken");
 const accountsRouter = require("./accounts/accounts-router");
-const customersRouter = require("./customers/customers-router.js");
 const banksRouter = require("./banks/banks-router.js");
 const belvoRouter = require("./belvo/belvo-router");
 const benefitsRouter = require("./benefits/benefits-router.js");
+const customersRouter = require("./customers/customers-router.js");
+const transactionsRouter = require("./transactions/transactions-router");
 
 const server = express();
 
@@ -28,6 +29,7 @@ server.use("/mvp/banks", authenticateToken, banksRouter);
 server.use("/mvp/belvo", authenticateToken, belvoRouter);
 server.use("/mvp/benefits", authenticateToken, benefitsRouter);
 server.use("/mvp/customers", customersRouter);
+server.use("/mvp/transactions", authenticateToken, transactionsRouter);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
