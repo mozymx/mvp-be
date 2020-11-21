@@ -10,8 +10,8 @@ const client = new belvo(
   process.env.BELVO_URL
 );
 
-// get all available banks from Belvo
-router.get("/available-banks", (req, res) => {
+// get all retail banks from Mexico
+router.get("/institutions", (req, res) => {
   client.connect().then(() => {
     client.institutions
       .list()
@@ -34,7 +34,7 @@ router.get("/available-banks", (req, res) => {
   });
 });
 
-// get all bank connections created through Belvo
+// get all bank connections
 router.get("/links", (req, res) => {
   client.connect().then(() => {
     client.links
@@ -48,7 +48,7 @@ router.get("/links", (req, res) => {
   });
 });
 
-// delete a bank connection created through Belvo
+// delete a bank connection
 router.delete("/links/:linkID", (req, res) => {
   const linkID = req.params.linkID;
 
@@ -64,7 +64,7 @@ router.delete("/links/:linkID", (req, res) => {
   });
 });
 
-// get all bank accounts created through Belvo
+// get all bank accounts
 router.get("/accounts", (req, res) => {
   client.connect().then(() => {
     client.accounts
@@ -78,7 +78,7 @@ router.get("/accounts", (req, res) => {
   });
 });
 
-// delete a bank connection created through Belvo
+// delete a bank connection
 router.delete("/accounts/:accountID", (req, res) => {
   const accountID = req.params.accountID;
 
