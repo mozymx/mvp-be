@@ -66,31 +66,35 @@ router.post("/customer/:customerID", (req, res) => {
 
 // get details from specific user bank account
 router.get("/bank/:bankID/account/:accountID", (req, res) => {
-  const accountID = req.params.accountID;
   const bankID = req.params.bankID;
+  const accountID = req.params.accountID;
 
   Banks.getBankByID(bankID)
     .then((bank) => {
-      Accounts.getAccountByID(accountID).then((account) => {
-        client
-          .connect()
-          .then(() => {
-            client.accounts
-              .detail(account.number)
-              .then((accountDetails) => {
-                // adds bank name to accountDetails
-                // before sending it back in response
-                accountDetails.bank_display_name = bank.name;
-                res.status(200).json({ accountDetails });
-              })
-              .catch((error) => {
-                res.status(500).json({ error });
-              });
-          })
-          .catch((error) => {
-            res.status(500).json({ error });
-          });
-      });
+      Accounts.getAccountByID(accountID)
+        .then((account) => {
+          client
+            .connect()
+            .then(() => {
+              client.accounts
+                .detail(account.number)
+                .then((accountDetails) => {
+                  // adds bank name to accountDetails
+                  // before sending it back in response
+                  accountDetails.bank_display_name = bank.name;
+                  res.status(200).json({ accountDetails });
+                })
+                .catch((error) => {
+                  res.status(500).json({ error });
+                });
+            })
+            .catch((error) => {
+              res.status(500).json({ error });
+            });
+        })
+        .catch((error) => {
+          res.status(500).json({ error });
+        });
     })
     .catch((error) => {
       res.status(500).json({ error });
