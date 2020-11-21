@@ -4,6 +4,7 @@ module.exports = {
   addAccount,
   getAccountByID,
   getAccountByFilter,
+  deleteAccount,
 };
 
 // add account from a user's bank
@@ -19,4 +20,9 @@ function getAccountByID(accountID) {
 // get account by filter
 function getAccountByFilter(filter) {
   return db("account").where(filter).first();
+}
+
+// delete account for a customer
+function deleteAccount(accountID) {
+  return db("account").where({ id: accountID }).del();
 }
