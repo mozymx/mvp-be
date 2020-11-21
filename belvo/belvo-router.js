@@ -2,13 +2,7 @@
 AND DEAL WITH BELVO DIRECTLY */
 
 const router = require("express").Router();
-const belvo = require("belvo").default;
-
-const client = new belvo(
-  process.env.BELVO_ID,
-  process.env.BELVO_PASSWORD,
-  process.env.BELVO_URL
-);
+const client = require("../helpers/belvoClient");
 
 // get all retail banks from Mexico
 router.get("/institutions", (req, res) => {
@@ -25,7 +19,7 @@ router.get("/institutions", (req, res) => {
             return institution;
           }
         });
-        res.status(200).json(mexicoRetailBanks);
+        res.status(200).json({ institutions: mexicoRetailBanks });
       })
       .catch((error) => {
         console.log("ERROR", error);

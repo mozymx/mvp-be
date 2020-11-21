@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const bcryptjs = require("bcryptjs");
 
-const Customers = require("./auth-model");
+const Customers = require("./customers-model");
 const Benefits = require("../benefits/benefits-model");
 const Banks = require("../banks/banks-model");
-const Accounts = require("../banks/accounts-model");
+const Accounts = require("../accounts/accounts-model");
 
 const verifyRequirements = require("../middleware/verifyRequirements");
 const validateCustomer = require("../middleware/validateCustomer");
