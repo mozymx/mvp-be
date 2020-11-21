@@ -1,3 +1,6 @@
+/* HELPER ENDPOINTS THAT SKIP OUR DATABASE
+AND DEAL WITH BELVO DIRECTLY */
+
 const router = require("express").Router();
 const belvo = require("belvo").default;
 
@@ -52,6 +55,36 @@ router.delete("/links/:linkID", (req, res) => {
   client.connect().then(() => {
     client.links
       .delete(linkID)
+      .then((response) => {
+        res.status(204).end();
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
+// get all bank accounts created through Belvo
+router.get("/accounts", (req, res) => {
+  client.connect().then(() => {
+    client.accounts
+      .list()
+      .then((accounts) => {
+        res.status(200).json({ accounts });
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
+// delete a bank connection created through Belvo
+router.delete("/accounts/:accountID", (req, res) => {
+  const accountID = req.params.accountID;
+
+  client.connect().then(() => {
+    client.accounts
+      .delete(accountID)
       .then((response) => {
         res.status(204).end();
       })

@@ -181,37 +181,4 @@ router.post("/bank-transactions/:accountID", (req, res) => {
   Accounts.getAccountsByID(accountID).then(account);
 });
 
-/* HELPER ENDPOINTS THAT SKIP OUR DATABASE
-AND DEAL WITH BELVO DIRECTLY */
-
-// get all bank accounts created through Belvo
-router.get("/belvo-accounts", (req, res) => {
-  client.connect().then(() => {
-    client.accounts
-      .list()
-      .then((belvoAccounts) => {
-        res.status(200).json({ belvoAccounts });
-      })
-      .catch((error) => {
-        res.status(500).json({ error });
-      });
-  });
-});
-
-// delete a bank connection created through Belvo
-router.delete("/belvo-accounts/:accountID", (req, res) => {
-  const accountID = req.params.accountID;
-
-  client.connect().then(() => {
-    client.accounts
-      .delete(accountID)
-      .then((response) => {
-        res.status(204).end();
-      })
-      .catch((error) => {
-        res.status(500).json({ error });
-      });
-  });
-});
-
 module.exports = router;
