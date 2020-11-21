@@ -31,4 +31,34 @@ router.get("/available-banks", (req, res) => {
   });
 });
 
+// get all bank connections created through Belvo
+router.get("/links", (req, res) => {
+  client.connect().then(() => {
+    client.links
+      .list()
+      .then((links) => {
+        res.status(200).json({ links });
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
+// delete a bank connection created through Belvo
+router.delete("/links/:linkID", (req, res) => {
+  const linkID = req.params.linkID;
+
+  client.connect().then(() => {
+    client.links
+      .delete(linkID)
+      .then((response) => {
+        res.status(204).end();
+      })
+      .catch((error) => {
+        res.status(500).json({ error });
+      });
+  });
+});
+
 module.exports = router;
