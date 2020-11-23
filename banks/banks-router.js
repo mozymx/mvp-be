@@ -57,6 +57,14 @@ router.post("/customer/:customerID", (req, res) => {
                 });
             });
           });
+        } else if (
+          error.statusCode === 400 &&
+          error.detail[0].code === "login_error"
+        ) {
+          res.status(400).json({
+            error:
+              "Usuario o contraseña equivocada. Por favor intenta de nuevo. :)",
+          });
         } else {
           res.status(500).json({ error });
         }
@@ -121,14 +129,6 @@ router.delete("/bank/:bankID", (req, res) => {
       });
     });
   });
-});
-
-/* BANK TRANSACTIONS (Belvo Transactions) */
-router.post("/bank-transactions/:accountID", (req, res) => {
-  const accountID = req.params.accountID;
-
-  // TODO:
-  Accounts.getAccountsByID(accountID).then(account);
 });
 
 module.exports = router;

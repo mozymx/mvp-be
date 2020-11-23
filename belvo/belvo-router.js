@@ -22,7 +22,6 @@ router.get("/institutions", (req, res) => {
         res.status(200).json({ institutions: mexicoRetailBanks });
       })
       .catch((error) => {
-        console.log("ERROR", error);
         res.status(401).json({ error });
       });
   });
