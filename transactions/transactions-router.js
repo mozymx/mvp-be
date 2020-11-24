@@ -23,6 +23,7 @@ router.post("/bank/:bankID/account/:accountID", (req, res) => {
               client.transactions
                 .retrieve(bank.link, oneMonthAgo, {
                   account: account.number,
+                  saveData: false,
                 })
                 .then((customerTransactions) => {
                   res.status(201).json({ customerTransactions });
