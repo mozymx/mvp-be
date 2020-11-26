@@ -1,17 +1,19 @@
 const constants = require("./constants");
 const jwt = require("jsonwebtoken");
 
-module.exports = (user) => {
-    const payload = {
-        subject: user.id,
-        name: user.name
-    };
+const createToken = (customer) => {
+  const payload = {
+    subject: customer.customer_id,
+    name: customer.name,
+  };
 
-    const secret = constants.jwtSecret;
+  const secret = constants.jwtSecret;
 
-    const options = {
-        expiresIn: "1d",
-    };
+  const options = {
+    expiresIn: "1d",
+  };
 
-    return jwt.sign(payload, secret, options);
-}
+  return jwt.sign(payload, secret, options);
+};
+
+module.exports = createToken;

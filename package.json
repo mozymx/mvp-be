@@ -4,6 +4,10 @@
   "description": "Backend for our first MVP.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "migrate": "knex migrate:latest",
+    "unmigrate": "knex migrate:rollback",
+    "seed": "knex seed:run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,17 +21,19 @@
   },
   "homepage": "https://github.com/mozymx/mvp-be#readme",
   "dependencies": {
-    "axios": "^0.21.0",
     "bcryptjs": "^2.4.3",
+    "belvo": "^0.7.1",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.21.9",
-    "sqlite3": "^5.0.0"
+    "knex": "^0.21.12",
+    "luxon": "^1.25.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.4.2"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0",
     "nodemon": "^2.0.6"
   }
 }
